@@ -21,8 +21,46 @@ const sankey = d3Sankey.sankey()
   .nodePadding(10)
   .extent([[1, 5], [width - 1, height - 5]]);
 
+
+
+function nodesFromJMU(dataset) {
+  //   1. leftmost nodes: JMU (positive) Revenue items
+  const jmuIncomeItems = incomeItems(dataset); // assume returns an array
+
+  // 1. second-to-leftmost nodes: JMU Revenue Categories (e.g. operating revenues, non-operating revenues, etc.)
+  const jmuIncomeCatagory = incomeCategories(dataset);
+
+  // 1. center node: JMU 
+  const jmuCenterNode = totalCategories(dataset);// what goes here
+  // 1. second-to-rightmost nodes: JMU Expense (negative revenue) Categories (e.g. operating expenses)
+  const jmuOperatingExpenseCategory = operatingCategory(dataset);
+  // 1. rightmost nodes: JMU Expense items (e.g. Instruction, Research, etc.)
+  const jmuItemsExpenseCategory = itemsCategory(dataset);
+  return [
+    ...jmuIncomeItems, // ... means this thing is collection, make individual items
+    ...jmuIncomeCatagory,
+    ...jmuCenterNode,
+    ...jmuOperatingExpenseCategory,
+    ...jmuItemsExpenseCategory
+  ];
+}
+
+// all function definitions defined before they can get called
+// function hoisting
+function nodesLinksFromJMU(dataSet) {
+  // return an object
+  // with 2 keys: nodes and links
+  const dataset = data["jmu-athletics"]; // NOT array, variable named differently
+  const results = {
+    nodes: nodesLinksFromJMU(dataset),
+    links: nodesLinksFromJMU(dataset)
+  }
+}
+
 async function init() {
-  const data = await d3.json("data/data_sankey.json");
+  // const data = await d3.json("data/data_sankey.json");
+  const dataJMU = await d3.json("data/jmu.json"); // read the file we care about
+  const data = nodesLinksFromJMU(dataJMU);
   // Applies it to the data. We make a copy of the nodes and links objects
   // so as to avoid mutating the original.
   const { nodes, links } = sankey({
