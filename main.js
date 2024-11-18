@@ -22,8 +22,23 @@ const sankey = d3Sankey.sankey()
   .extent([[1, 5], [width - 1, height - 5]]);
 
 
+function linksFromJMU(dataset) {
+
+}
+
 
 function nodesFromJMU(dataset) {
+
+  const nodes = [
+    { id: "JMU Student", label: "JMU Student" },
+    { id: "Fall", label: "Fall" },
+    { id: "Spring", label: "Spring" },
+
+    ...dataSet.map(item => ({
+      id: item.name,        
+      label: item.name    
+    }))
+  ];
   //   1. leftmost nodes: JMU (positive) Revenue items
   const jmuIncomeItems = incomeItems(dataset); // assume returns an array
 
@@ -52,8 +67,8 @@ function nodesLinksFromJMU(dataSet) {
   // with 2 keys: nodes and links
   const dataset = data["jmu-athletics"]; // NOT array, variable named differently
   const results = {
-    nodes: nodesLinksFromJMU(dataset),
-    links: nodesLinksFromJMU(dataset)
+    nodes: nodesFromJMU(dataset),
+    links: linksFromJMU(dataset)
   }
 }
 
@@ -63,11 +78,21 @@ async function init() {
   const data = nodesLinksFromJMU(dataJMU);
   // Applies it to the data. We make a copy of the nodes and links objects
   // so as to avoid mutating the original.
-  const { nodes, links } = sankey({
-  // const tmp = sankey({
-    nodes: data.nodes.map(d => Object.assign({}, d)),
-    links: data.links.map(d => Object.assign({}, d))
+  const { studentCosts, studentAux, jmuRevenues, jmuAthletics } = sankey({
+    nodes: data.nodes.map(d => ({
+      id: d.id,
+      name: d.name,
+      category: d.category || 'general', // Adding an extra category
+      value: d.value           // Add more values if needed
+    })),
+    links: data.links.map(d => ({
+      sourceIndex: d.source,
+      targetIndex: d.target,
+      flowValue: d.flow || 0,
+      label: d.label || 'Unknown'
+    }))
   });
+  
 
   // console.log('tmp', tmp);
   console.log('nodes', nodes);
